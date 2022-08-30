@@ -6,7 +6,7 @@ require("dotenv").config();
 const { request, gql } = require("graphql-request");
 const { ethers } = require("ethers");
 const balancerPoolAbi = require("./balancer-pool-abi.json");
-const provider = new ethers.providers.JsonRpcProvider(process.env.ALCHEMY_URL);
+// const provider = new ethers.providers.JsonRpcProvider(process.env.ALCHEMY_URL);
 http
   .createServer(function (request, response) {
     response.writeHead(200, { "Content-Type": "text/plain" });
@@ -343,50 +343,50 @@ const getTVL = async () => {
   return tvl;
 };
 
-const client = new Discord.Client();
-const veCRVBotClient = new Discord.Client();
+// const client = new Discord.Client();
+// const veCRVBotClient = new Discord.Client();
 const crvPriceClient = new Discord.Client();
-const txjpPriceClient = new Discord.Client();
+// const txjpPriceClient = new Discord.Client();
 
-client.on("ready", async () => {
-  setInterval(async () => {
-    const guild = client.guilds.cache.get(process.env.DISCORD_CHANNEL_ID);
-    const bot = await guild.members.fetch(
-      process.env.DISCORD_TVL_AND_VOLUME_BOT_ID
-    );
-    const tvl = await getTVL();
-    const dailyVolume = await getVolume(30, 1);
-    console.log("Volume, tvl : ", dailyVolume, tvl);
-    const dailyVolumeFixed = numeral(dailyVolume).format("0a");
-    const tvlFixed = numeral(tvl).format("0.00a");
-    await bot.setNickname(`Daily Vol: $${dailyVolumeFixed}`);
-    await client.user.setActivity(`TVL: $${tvlFixed}`);
-  }, 5 * 60 * 1000);
-});
+// client.on("ready", async () => {
+//   setInterval(async () => {
+//     const guild = client.guilds.cache.get(process.env.DISCORD_CHANNEL_ID);
+//     const bot = await guild.members.fetch(
+//       process.env.DISCORD_TVL_AND_VOLUME_BOT_ID
+//     );
+//     const tvl = await getTVL();
+//     const dailyVolume = await getVolume(30, 1);
+//     console.log("Volume, tvl : ", dailyVolume, tvl);
+//     const dailyVolumeFixed = numeral(dailyVolume).format("0a");
+//     const tvlFixed = numeral(tvl).format("0.00a");
+//     await bot.setNickname(`Daily Vol: $${dailyVolumeFixed}`);
+//     await client.user.setActivity(`TVL: $${tvlFixed}`);
+//   }, 5 * 60 * 1000);
+// });
 
-veCRVBotClient.on("ready", async () => {
-  const guild = veCRVBotClient.guilds.cache.get(process.env.DISCORD_CHANNEL_ID);
-  const bot = await guild.members.fetch(process.env.DISCORD_VECRV_BOT_ID);
-  const URL = `https://api.etherscan.io/api?module=stats&action=tokensupply&contractaddress=0x5f3b5DfEb7B28CDbD7FAba78963EE202a494e2A2&apikey=${process.env.ETHERSCAN_API_KEY}`;
-  setInterval(async () => {
-    const res = await fetch(URL);
-    const veCRVData = await res.json();
-    const veCRV = Math.floor(Number(veCRVData.result) / 10 ** 18);
-    const weeklyVolume = await getVolume(1440, 7);
-    console.log(
-      "veCRV, weeklyVolume, weeklyFee:",
-      veCRV,
-      weeklyVolume,
-      (weeklyVolume * 0.02) / 100
-    );
-    const veCRVPerYear = (weeklyVolume * 52 * 0.02) / 100 / veCRV;
-    await bot.setNickname(`$${veCRVPerYear.toFixed(2)} veCRV/年`);
-    const veCRVToFixed = veCRV.toFixed();
-    await veCRVBotClient.user.setActivity(
-      `total: ${Number(veCRVToFixed).toLocaleString()} veCRV`
-    );
-  }, 2 * 60 * 1000);
-});
+// veCRVBotClient.on("ready", async () => {
+//   const guild = veCRVBotClient.guilds.cache.get(process.env.DISCORD_CHANNEL_ID);
+//   const bot = await guild.members.fetch(process.env.DISCORD_VECRV_BOT_ID);
+//   const URL = `https://api.etherscan.io/api?module=stats&action=tokensupply&contractaddress=0x5f3b5DfEb7B28CDbD7FAba78963EE202a494e2A2&apikey=${process.env.ETHERSCAN_API_KEY}`;
+//   setInterval(async () => {
+//     const res = await fetch(URL);
+//     const veCRVData = await res.json();
+//     const veCRV = Math.floor(Number(veCRVData.result) / 10 ** 18);
+//     const weeklyVolume = await getVolume(1440, 7);
+//     console.log(
+//       "veCRV, weeklyVolume, weeklyFee:",
+//       veCRV,
+//       weeklyVolume,
+//       (weeklyVolume * 0.02) / 100
+//     );
+//     const veCRVPerYear = (weeklyVolume * 52 * 0.02) / 100 / veCRV;
+//     await bot.setNickname(`$${veCRVPerYear.toFixed(2)} veCRV/年`);
+//     const veCRVToFixed = veCRV.toFixed();
+//     await veCRVBotClient.user.setActivity(
+//       `total: ${Number(veCRVToFixed).toLocaleString()} veCRV`
+//     );
+//   }, 2 * 60 * 1000);
+// });
 
 crvPriceClient.on("ready", async () => {
   const guild = crvPriceClient.guilds.cache.get(process.env.DISCORD_CHANNEL_ID);
@@ -406,45 +406,45 @@ crvPriceClient.on("ready", async () => {
   }, 1 * 60 * 1000);
 });
 
-txjpPriceClient.on("ready", async () => {
-  const contract = new ethers.Contract(
-    process.env.BALANCER_POOL_CONTRACT_ADDRESS,
-    balancerPoolAbi,
-    provider
-  );
-  const uniswapV3Query = gql`
-    {
-      pool(id: "${process.env.UNISWAP_POOL_CONTRACT_ADDRESS}") {
-        token1Price
-      }
-    }
-  `;
-  setInterval(async () => {
-    const guild = txjpPriceClient.guilds.cache.get(
-      process.env.DISCORD_CHANNEL_ID
-    );
-    const bot = await guild.members.fetch(process.env.DISCORD_TXJPPRICE_BOT_ID);
-    const uniswapv3Data = await request(
-      "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3",
-      uniswapV3Query
-    );
-    const balancerData = await contract.getSpotPrice(
-      process.env.WETH_CONTRACT_ADDRESS,
-      process.env.TXJP_CONTRACT_ADDRESS
-    );
-    const priceOnUniswap = uniswapv3Data.pool.token1Price;
-    const priceOnBalancer = balancerData.div(1e15).toNumber() / 1e13;
-    console.log("price on uniswap", priceOnUniswap);
-    await bot.setNickname(
-      `TXJP: Ξ${Math.round(priceOnUniswap * 100000) / 100000}`
-    );
-    await txjpPriceClient.user.setActivity(
-      `TXJP on BALV1: Ξ${Math.round(priceOnBalancer * 100000) / 100000}`
-    );
-  }, 5 * 60 * 1000);
-});
+// txjpPriceClient.on("ready", async () => {
+//   const contract = new ethers.Contract(
+//     process.env.BALANCER_POOL_CONTRACT_ADDRESS,
+//     balancerPoolAbi,
+//     provider
+//   );
+//   const uniswapV3Query = gql`
+//     {
+//       pool(id: "${process.env.UNISWAP_POOL_CONTRACT_ADDRESS}") {
+//         token1Price
+//       }
+//     }
+//   `;
+//   setInterval(async () => {
+//     const guild = txjpPriceClient.guilds.cache.get(
+//       process.env.DISCORD_CHANNEL_ID
+//     );
+//     const bot = await guild.members.fetch(process.env.DISCORD_TXJPPRICE_BOT_ID);
+//     const uniswapv3Data = await request(
+//       "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3",
+//       uniswapV3Query
+//     );
+//     const balancerData = await contract.getSpotPrice(
+//       process.env.WETH_CONTRACT_ADDRESS,
+//       process.env.TXJP_CONTRACT_ADDRESS
+//     );
+//     const priceOnUniswap = uniswapv3Data.pool.token1Price;
+//     const priceOnBalancer = balancerData.div(1e15).toNumber() / 1e13;
+//     console.log("price on uniswap", priceOnUniswap);
+//     await bot.setNickname(
+//       `TXJP: Ξ${Math.round(priceOnUniswap * 100000) / 100000}`
+//     );
+//     await txjpPriceClient.user.setActivity(
+//       `TXJP on BALV1: Ξ${Math.round(priceOnBalancer * 100000) / 100000}`
+//     );
+//   }, 5 * 60 * 1000);
+// });
 
-client.login(process.env.DISCORD_TVL_AND_VOLUME_BOT_TOKEN);
-veCRVBotClient.login(process.env.DISCORD_VECRV_BOT_TOKEN);
+// client.login(process.env.DISCORD_TVL_AND_VOLUME_BOT_TOKEN);
+// veCRVBotClient.login(process.env.DISCORD_VECRV_BOT_TOKEN);
 crvPriceClient.login(process.env.DISCORD_CRVPRICE_BOT_TOKEN);
-txjpPriceClient.login(process.env.DISCORD_TXJPPRICE_BOT_TOKEN);
+// txjpPriceClient.login(process.env.DISCORD_TXJPPRICE_BOT_TOKEN);
