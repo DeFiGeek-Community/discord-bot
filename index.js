@@ -4,8 +4,8 @@ const Discord = require("discord.js");
 const numeral = require("numeral");
 require("dotenv").config();
 const { request, gql } = require("graphql-request");
-const { ethers } = require("ethers");
-const balancerPoolAbi = require("./balancer-pool-abi.json");
+const { ethers, BigNumber } = require("ethers");
+const balancerPoolAbi = require("./abi/balancer.json");
 const provider = new ethers.providers.JsonRpcProvider(process.env.ALCHEMY_URL);
 const intervalTime = 5 * 60 * 1000;
 
@@ -347,6 +347,25 @@ const veCRVBotClient = new Discord.Client();
 const crvPriceClient = new Discord.Client();
 const txjpPriceClient = new Discord.Client();
 
+curveTVLClient.on("ready", async () => {
+  setInterval(async () => {
+    try {
+      const guild = curveTVLClient.guilds.cache.get(process.env.DISCORD_CHANNEL_ID);
+      const bot = await guild.members.fetch(
+        process.env.DISCORD_CURVE_TVL_BOT_ID
+      );
+      const tvl = await getTVL();
+      const dailyVolume = await getVolume(30, 1);
+      const dailyVolumeFixed = numeral(dailyVolume).format("0a");
+      const tvlFixed = numeral(tvl).format("0.00a");
+      await bot.setNickname(`Daily Vol: $${dailyVolumeFixed}`);
+      await curveTVLClient.user.setActivity(`TVL: $${tvlFixed}`);
+    } catch (err) {
+      console.log(err.name + ': ' + err.message);
+    }
+  }, intervalTime);
+});
+
 crvPriceClient.on("ready", async () => {
   const guild = crvPriceClient.guilds.cache.get(process.env.DISCORD_CHANNEL_ID);
   const bot = await guild.members.fetch(process.env.DISCORD_CRVPRICE_BOT_ID);
@@ -363,25 +382,6 @@ crvPriceClient.on("ready", async () => {
       await crvPriceClient.user.setActivity(
         `CRV/ETH: Ξ${(await responses[1].json())["curve-dao-token"].eth}`
       );
-    } catch (err) {
-      console.log(err.name + ': ' + err.message);
-    }
-  }, intervalTime);
-});
-
-curveTVLClient.on("ready", async () => {
-  setInterval(async () => {
-    try {
-      const guild = curveTVLClient.guilds.cache.get(process.env.DISCORD_CHANNEL_ID);
-      const bot = await guild.members.fetch(
-        process.env.DISCORD_CURVE_TVL_BOT_ID
-      );
-      const tvl = await getTVL();
-      const dailyVolume = await getVolume(30, 1);
-      const dailyVolumeFixed = numeral(dailyVolume).format("0a");
-      const tvlFixed = numeral(tvl).format("0.00a");
-      await bot.setNickname(`Daily Vol: $${dailyVolumeFixed}`);
-      await curveTVLClient.user.setActivity(`TVL: $${tvlFixed}`);
     } catch (err) {
       console.log(err.name + ': ' + err.message);
     }
@@ -412,7 +412,7 @@ veCRVBotClient.on("ready", async () => {
 
 txjpPriceClient.on("ready", async () => {
   const contract = new ethers.Contract(
-    process.env.BALANCER_POOL_CONTRACT_ADDRESS,
+    process.env.BALANCER_VAULT_CONTRACT_ADDRESS,
     balancerPoolAbi,
     provider
   );
@@ -433,17 +433,16 @@ txjpPriceClient.on("ready", async () => {
         "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3",
         uniswapV3Query
       );
-      const balancerData = await contract.getSpotPrice(
-        process.env.WETH_CONTRACT_ADDRESS,
-        process.env.TXJP_CONTRACT_ADDRESS
-      );
       const priceOnUniswap = uniswapv3Data.pool.token1Price;
-      const priceOnBalancer = balancerData.div(1e15).toNumber() / 1e13;
+      const balancerData = await contract.getPoolTokens(
+        process.env.BALANCER_POOL_CONTRACT_ADDRESS
+      );
+      const priceOnBalancer = balancerData[1][1].mul(98).div(2).div(balancerData[1][0]).toNumber() / 1e10;
       await bot.setNickname(
         `TXJP: Ξ${Math.round(priceOnUniswap * 100000) / 100000}`
       );
       await txjpPriceClient.user.setActivity(
-        `TXJP on BALV1: Ξ${Math.round(priceOnBalancer * 100000) / 100000}`
+        `TXJP on BALV2: Ξ${Math.round(priceOnBalancer * 100000) / 100000}`
       );
     } catch (err) {
       console.log(err.name + ': ' + err.message);
