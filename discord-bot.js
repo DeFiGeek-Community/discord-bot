@@ -6,7 +6,7 @@ const { ethers } = require("ethers");
 
 const balancerPoolAbi = require("./abi/balancer.json");
 const provider = new ethers.providers.JsonRpcProvider(process.env.ALCHEMY_URL);
-const intervalTime = 1 * 60 * 1000;
+const intervalTime = 10 * 60 * 1000;
 
 const currencies = {
   compound: {
