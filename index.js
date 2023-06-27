@@ -1,5 +1,5 @@
 require("dotenv").config();
-const txjp = require("./txjp");
+const txjp = require("./txjp2");
 const discordBotRun = require("./discord-bot");
 const express = require("express");
 const app = express();
