@@ -1,10 +1,10 @@
-const Keyv = require('keyv');
+const Keyv = require("keyv");
 const cache = new Keyv();
 const cron = require("node-cron");
 
 require("dotenv").config();
 
-const { Web3 } = require('web3');
+const { Web3 } = require("web3");
 const web3 = new Web3(process.env.INFURA_URL);
 
 const express = require("express");
@@ -24,11 +24,11 @@ const uniV3NFTAddress = ["0xA9166690c35d900a57D2ec132C58291bC0678944"]; // add n
 const balV1Contract = process.env.BALANCERV1_TOKEN_CONTRACT_ADDRESS;
 const balV2TokenContract = process.env.BALANCER_TOKEN_CONTRACT_ADDRESS;
 const balV2VaultContract = process.env.BALANCER_VAULT_CONTRACT_ADDRESS;
-const balV2PoolAddress = process.env.BALANCER_POOL_CONTRACT_ADDRESS
-const balancerV1Abi = require("./abi/balancerV1Token.json");
-const balancerV2TokenAbi = require("./abi/balancerV2Token.json");
-const balancerV2VaultAbi = require("./abi/balancer.json");
-const balanceOfAbi = require("./abi/balanceOf.json");
+const balV2PoolAddress = process.env.BALANCER_POOL_CONTRACT_ADDRESS;
+const balancerV1Abi = require("../abi/balancerV1Token.json");
+const balancerV2TokenAbi = require("../abi/balancerV2Token.json");
+const balancerV2VaultAbi = require("../abi/balancer.json");
+const balanceOfAbi = require("../abi/balanceOf.json");
 
 async function calculateAndCacheDaoBalance() {
   const walletBalance = await getWalletBalance();
@@ -36,9 +36,12 @@ async function calculateAndCacheDaoBalance() {
   const balV2Balance = await getBalV2Balance();
   const uniV3Balance = await getUniV3Balance();
 
-  const sum = walletBalance.plus(balV1Balance).plus(balV2Balance).plus(uniV3Balance);
+  const sum = walletBalance
+    .plus(balV1Balance)
+    .plus(balV2Balance)
+    .plus(uniV3Balance);
 
-  await cache.set("daoBalance", sum.toNumber()); 
+  await cache.set("daoBalance", sum.toNumber());
 
   console.log("Dao Balance calculated and cached.");
 }
@@ -50,7 +53,12 @@ cron.schedule("0 * * * *", async () => {
 async function getWalletBalance() {
   let sum = new Big(0);
   for (const address of myWalletAddresses) {
-    const balanceOf = await new web3.eth.Contract(balanceOfAbi, txjpAddress).methods.balanceOf(address).call();
+    const balanceOf = await new web3.eth.Contract(
+      balanceOfAbi,
+      txjpAddress
+    ).methods
+      .balanceOf(address)
+      .call();
     const balance = new Big(balanceOf);
     sum = sum.plus(balance.div(10 ** 8));
   }
@@ -59,12 +67,30 @@ async function getWalletBalance() {
 
 async function getBalV1Balance() {
   let sum = new Big(0);
-  const getBalance = await new web3.eth.Contract(balancerV1Abi, balV1Contract).methods.getBalance(txjpAddress).call();
-  const totalSupply = await new web3.eth.Contract(balancerV1Abi, balV1Contract).methods.totalSupply().call();
+  const getBalance = await new web3.eth.Contract(
+    balancerV1Abi,
+    balV1Contract
+  ).methods
+    .getBalance(txjpAddress)
+    .call();
+  const totalSupply = await new web3.eth.Contract(
+    balancerV1Abi,
+    balV1Contract
+  ).methods
+    .totalSupply()
+    .call();
   for (const address of myWalletAddresses) {
-    const balanceOf = await new web3.eth.Contract(balancerV1Abi, balV1Contract).methods.balanceOf(address).call();
+    const balanceOf = await new web3.eth.Contract(
+      balancerV1Abi,
+      balV1Contract
+    ).methods
+      .balanceOf(address)
+      .call();
     const balance = new Big(balanceOf);
-    const result = new Big(getBalance).times(balance).div(totalSupply).div(10 ** 8);
+    const result = new Big(getBalance)
+      .times(balance)
+      .div(totalSupply)
+      .div(10 ** 8);
     sum = sum.plus(result);
   }
   return sum;
@@ -72,12 +98,30 @@ async function getBalV1Balance() {
 
 async function getBalV2Balance() {
   let sum = new Big(0);
-  const totalSupply = await new web3.eth.Contract(balancerV2TokenAbi, balV2TokenContract).methods.totalSupply().call();
-  const getPoolTokenInfo = await new web3.eth.Contract(balancerV2VaultAbi, balV2VaultContract).methods.getPoolTokenInfo(balV2PoolAddress, txjpAddress).call();
+  const totalSupply = await new web3.eth.Contract(
+    balancerV2TokenAbi,
+    balV2TokenContract
+  ).methods
+    .totalSupply()
+    .call();
+  const getPoolTokenInfo = await new web3.eth.Contract(
+    balancerV2VaultAbi,
+    balV2VaultContract
+  ).methods
+    .getPoolTokenInfo(balV2PoolAddress, txjpAddress)
+    .call();
   for (const address of myWalletAddresses) {
-    const balanceOf = await new web3.eth.Contract(balancerV2TokenAbi, balV2TokenContract).methods.balanceOf(address).call();
+    const balanceOf = await new web3.eth.Contract(
+      balancerV2TokenAbi,
+      balV2TokenContract
+    ).methods
+      .balanceOf(address)
+      .call();
     const balance = new Big(balanceOf);
-    const result = new Big(getPoolTokenInfo.cash).times(balance).div(totalSupply).div(10 ** 8);
+    const result = new Big(getPoolTokenInfo.cash)
+      .times(balance)
+      .div(totalSupply)
+      .div(10 ** 8);
     sum = sum.plus(result);
   }
   return sum;
@@ -86,7 +130,12 @@ async function getBalV2Balance() {
 async function getUniV3Balance() {
   let sum = new Big(0);
   for (const address of uniV3NFTAddress) {
-    const result = await new web3.eth.Contract(balanceOfAbi, txjpAddress).methods.balanceOf(address).call();
+    const result = await new web3.eth.Contract(
+      balanceOfAbi,
+      txjpAddress
+    ).methods
+      .balanceOf(address)
+      .call();
     const balance = new Big(result);
     sum = sum.plus(balance.div(10 ** 8));
   }
