@@ -1,6 +1,6 @@
 require("dotenv").config();
 
 // import bot which you made
-const testRun = require("./yamato.js");
+const testRun = require("./***.js");
 
 testRun();
