@@ -14,12 +14,15 @@ const yamatoExchangerateRun = () => {
             process.env.DISCORD_YAMATO_EXCHANGERATE_BOT_ID
             );
 
-            const res = await fetch(
-            "https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE&from_currency=USD&to_currency=JPY&apikey=GZWY0Y5XMJ7WM66A"
+            const ABI = require("./../abi/JPYUSD.json");
+            const JPYUSDcontract = new ethers.Contract(
+            "0xbce206cae7f0ec07b545edde332a47c2f75bbeb3", // JPY/USD|Chainlink contract address
+            ABI,
+            provider
             );
-            const resJSON = await res.json();
-            const jpyPerUSD = resJSON['Realtime Currency Exchange Rate']['5. Exchange Rate'];
-            const jpyPerUSDToFixed = Number(jpyPerUSD).toFixed(2);
+            const res = await JPYUSDcontract.latestRoundData();
+            const resUSDPerJPY = res.answer;
+            const jpyPerUSDToFixed = (10 ** 8 / resUSDPerJPY).toFixed(2);
             
             const res2 = await fetch(
             "https://api.coingecko.com/api/v3/simple/price?ids=convertible-jpy-token&vs_currencies=jpy"
