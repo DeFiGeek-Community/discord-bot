@@ -1,8 +1,8 @@
 const Discord = require("discord.js");
 
-const { ethers, provider, intervalTime } = require("./../util.js");
+const { ethers, provider, intervalTime } = require("../util.js");
 
-const pndTxjpRun = () => {
+const pndCjpyRun = () => {
   const fuseUtilClient = new Discord.Client();
   fuseUtilClient.on("ready", async () => {
     setInterval(async () => {
@@ -11,7 +11,7 @@ const pndTxjpRun = () => {
           process.env.DISCORD_CHANNEL_ID
         );
         const bot = await guild.members.fetch(
-          process.env.DISCORD_PND_TXJP_BOT_ID
+          process.env.DISCORD_PND_CJPY_BOT_ID
         );
         const ABI = require("../../abi/pnd.json");
         const pCJPYcontract = new ethers.Contract(
@@ -45,7 +45,7 @@ const pndTxjpRun = () => {
     }, intervalTime);
   });
 
-  fuseUtilClient.login(process.env.DISCORD_PND_TXJP_BOT_TOKEN);
+  fuseUtilClient.login(process.env.DISCORD_PND_CJPY_BOT_TOKEN);
 };
 
-module.exports = pndTxjpRun;
+module.exports = pndCjpyRun;
