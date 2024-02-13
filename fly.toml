@@ -1,0 +1,4 @@
+app = "dfgc-discord-bot"
+
+[build]
+  builder = "heroku/buildpacks:20"

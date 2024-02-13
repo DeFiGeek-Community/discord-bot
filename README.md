@@ -19,3 +19,7 @@ start all the registed bots.
 
 Check if the bot's startup command works correctly.
 Require import to be changed accordingly.
+
+## hosting
+
+Hosted at [fly.io](https://fly.io/docs/)
