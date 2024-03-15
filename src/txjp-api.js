@@ -41,6 +41,7 @@ async function calculateAndCacheDaoBalance() {
     .plus(balV2Balance)
     .plus(uniV3Balance);
 
+  await cache.clear();
   await cache.set("daoBalance", sum.toNumber());
 
   console.log("Dao Balance calculated and cached.");
