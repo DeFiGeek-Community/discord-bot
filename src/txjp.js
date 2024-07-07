@@ -29,7 +29,7 @@ const txjpPriceRun = () => {
           process.env.DISCORD_TXJPPRICE_BOT_ID
         );
         const uniswapv3Data = await request(
-          "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3",
+          `https://gateway-arbitrum.network.thegraph.com/api/${process.env.THEGRAPH_API_KEY}/subgraphs/id/8e4dRt4P4WHXnKbEq7STaQfU2g99WZ5S4w39f2PcUTjD`,
           uniswapV3Query
         );
         const priceOnUniswap = uniswapv3Data.pool.token1Price;
