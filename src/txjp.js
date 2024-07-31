@@ -46,7 +46,7 @@ const txjpPriceRun = () => {
           `TXJP on BALV2: Ξ${Math.round(priceOnBalancer * 100000) / 100000}`
         );
       } catch (err) {
-        console.log(err.name + ": " + err.message);
+        console.error("tjp.js" + err.name + ": " + err.message);
       }
     }, intervalTime);
   });

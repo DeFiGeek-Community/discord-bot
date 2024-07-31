@@ -45,7 +45,7 @@ const yamatoExchangerateRun = () => {
           `円: ${jpyPerUSDToFixed}・CJPY: ${cjpyPerUSDToFixed}`
         );
       } catch (err) {
-        console.log(err.name + ": " + err.message);
+        console.error("yamato/exchangerate.js" + err.name + ": " + err.message);
       }
     }, intervalTime);
   });

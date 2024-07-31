@@ -36,7 +36,7 @@ const pndUtilRun = () => {
             `金利 貸:${supplyRate}% 借:${borrowRate}%`
           );
         } catch (err) {
-          console.log(err.name + ": " + err.message);
+          console.error("pnd.js" + err.name + ": " + err.message);
         }
       }, intervalTime);
     });

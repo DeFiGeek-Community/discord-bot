@@ -46,7 +46,7 @@ const fuseUtilRun = () => {
         const utilUSDC = Math.round((borrowUSDC / supplyUSDC) * 100);
         await fuseUtilClient.user.setActivity(`USDC-util: ${utilUSDC}%`);
       } catch (err) {
-        console.log(err.name + ": " + err.message);
+        console.error("fuse.js" + err.name + ": " + err.message);
       }
     }, intervalTime);
   });
