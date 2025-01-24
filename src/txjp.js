@@ -2,15 +2,48 @@ const Discord = require("discord.js");
 const { request, gql } = require("graphql-request");
 
 const { ethers, provider, intervalTime } = require("./util.js");
-const balancerPoolAbi = require("../abi/balancer.json");
+const curvePoolAbi = require("../abi/curveTricrypto.json");
+const fetch = require("node-fetch");
+
+const ONE_TXJP = ethers.BigNumber.from("100000000"); // 1 TXJP (8 decimals)
 
 const txjpPriceRun = () => {
   const txjpPriceClient = new Discord.Client();
 
+  const getEthPrice = async () => {
+    const ethURL =
+      "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd";
+    try {
+      const response = await fetch(ethURL);
+      const data = await response.json();
+      return data.ethereum.usd;
+    } catch (error) {
+      console.error("ETH price fetch error:", error);
+      throw error;
+    }
+  };
+
+  const calcTxjpPrice = async (curvePoolContract) => {
+    try {
+
+      const priceOnCurve = await curvePoolContract.get_dy(2, 1, ONE_TXJP);
+      const ethPrice = await getEthPrice();
+      const priceInEth = parseFloat(ethers.utils.formatUnits(priceOnCurve, 18));
+
+      return {
+        curvePrice: priceInEth,
+        usdPrice: priceInEth * ethPrice,
+      };
+    } catch (error) {
+      console.error("calcTxjpPrice error:", error);
+      throw error;
+    }
+  };
+
   txjpPriceClient.on("ready", async () => {
-    const contract = new ethers.Contract(
-      process.env.BALANCER_VAULT_CONTRACT_ADDRESS,
-      balancerPoolAbi,
+    const curvePoolContract = new ethers.Contract(
+      process.env.CURVE_POOL_CONTRACT_ADDRESS,
+      curvePoolAbi,
       provider
     );
     const uniswapV3Query = gql`
@@ -33,17 +66,10 @@ const txjpPriceRun = () => {
           uniswapV3Query
         );
         const priceOnUniswap = uniswapv3Data.pool.token1Price;
-        const balancerData = await contract.getPoolTokens(
-          process.env.BALANCER_POOL_CONTRACT_ADDRESS
-        );
-        const priceOnBalancer =
-          balancerData[1][1].mul(98).div(2).div(balancerData[1][0]).toNumber() /
-          1e10;
-        await bot.setNickname(
-          `TXJP: Ξ${Math.round(priceOnUniswap * 100000) / 100000}`
-        );
+        const { usdPrice } = await calcTxjpPrice(curvePoolContract);
+        await bot.setNickname(`TXJP: $${usdPrice.toFixed(2)}`);
         await txjpPriceClient.user.setActivity(
-          `TXJP on BALV2: Ξ${Math.round(priceOnBalancer * 100000) / 100000}`
+          `TXJP on UNI: Ξ${parseFloat(priceOnUniswap).toFixed(5)}`
         );
       } catch (err) {
         console.error("tjp.js" + err.name + ": " + err.message);
