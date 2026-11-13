@@ -1,0 +1,7 @@
+{
+  "name": "spark-position-monitor",
+  "private": true,
+  "type": "module",
+  "scripts": { "deploy": "wrangler deploy", "tail": "wrangler tail" },
+  "devDependencies": { "wrangler": "^3.90.0" }
+}

@@ -1,0 +1,15 @@
+name = "pnd-monitor"
+main = "src/index.js"
+compatibility_date = "2026-01-01"
+
+[triggers]
+# 毎日 12:00 UTC = 21:00 JST
+crons = ["0 12 * * *"]
+
+# プールのアドレスは src/index.js の POOLS にあります（公開情報）。
+
+# 以下は wrangler secret put で設定（コードに書かない）
+#   npx wrangler secret put RPC_URL               Alchemy の URL（Spark と同じもので可）
+#   npx wrangler secret put DISCORD_WEBHOOK_URL   投稿先（?thread_id= 込み）
+#   npx wrangler secret put ALERT_WEBHOOK_URL     #bot-失敗アラート
+#   npx wrangler secret put TRIGGER_KEY           手動投稿用。適当なランダム文字列
