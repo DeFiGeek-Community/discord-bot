@@ -2,6 +2,11 @@
   "name": "spark-position-monitor",
   "private": true,
   "type": "module",
-  "scripts": { "deploy": "wrangler deploy", "tail": "wrangler tail" },
-  "devDependencies": { "wrangler": "^3.90.0" }
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail"
+  },
+  "devDependencies": {
+    "wrangler": "^4.161.0"
+  }
 }
