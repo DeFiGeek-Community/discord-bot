@@ -12,7 +12,7 @@ DeFiGeek Community Japan の Discord に、オンチェーンの公開データ�
 
 | ディレクトリ | 内容 | 動いている場所 | 状態 |
 | --- | --- | --- | --- |
-| `workers/spark-monitor/` | Safe の SparkLend ポジション（Health・担保・負債）を毎日21時に投稿 | Cloudflare Workers | デプロイ待ち |
+| `workers/spark-monitor/` | Safe の SparkLend ポジション（Health・担保・負債）を毎日21時に投稿 | Cloudflare Workers | 稼働（2026/11/13 デプロイ） |
 | `workers/pnd-monitor/` | PND 各プールの利用状況を毎日21時に投稿 | Cloudflare Workers | デプロイ待ち（旧版と突き合わせ後に切り替え） |
 | `info-bots-legacy/` | 旧 INFO BOT（ニックネームに数値を表示する Bot 群）と TXJP 流通量 API | fly.io | **停止。保管のみ** |
 
