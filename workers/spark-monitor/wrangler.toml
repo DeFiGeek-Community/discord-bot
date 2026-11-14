@@ -1,0 +1,29 @@
+name = "spark-position-monitor"
+main = "src/index.js"
+compatibility_date = "2026-01-01"
+
+# 毎日 12:00 UTC = 21:00 JST
+[triggers]
+crons = ["0 12 * * *"]
+
+[vars]
+# 監視対象（Safe）。秘密情報ではないのでここに置く。
+SAFE_ADDRESS = "0x153d9DD730083e53615610A0d2f6F95Ab5A0Bc01"
+
+# SparkLend の Pool コントラクト（Ethereum メインネット）
+# 出典: Spark 公式のアドレスレジストリ
+#   https://github.com/sparkdotfi/spark-address-registry
+#   src/SparkLend.sol の POOL
+SPARK_POOL = "0xC13e21B648A5Ee794902342038FF3aDAB66BE987"
+
+# Health がこの値を下回ったら警告する
+WARN_HEALTH = "1.3"
+
+# 警告時にメンションするロールID（任意。空なら鳴らさない）
+ALERT_ROLE_ID = ""
+
+# 以下は wrangler secret put で設定（コードに書かない）
+#   npx wrangler secret put RPC_URL
+#   npx wrangler secret put DISCORD_WEBHOOK_URL   運用投稿先
+#   npx wrangler secret put ALERT_WEBHOOK_URL     #bot-失敗アラート用
+#   npx wrangler secret put TRIGGER_KEY
